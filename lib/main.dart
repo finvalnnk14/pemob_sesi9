@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'pembayaran.dart'; // Import file pembayaran.dart
+import 'login.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: MarketplacePanganPage(),
+    home: LoginPage(),
     debugShowCheckedModeBanner: false,
   ));
 }
@@ -14,24 +16,24 @@ class MarketplacePanganPage extends StatefulWidget {
 
 class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
   final TextEditingController _searchController = TextEditingController();
-
   int _currentIndex = 0;
 
   final List<Map<String, String>> _allProducts = [
-    {'name': 'Beras', 'image': 'images/beras.jpg'},
-    {'name': 'Minyak Goreng', 'image': 'images/minyak.jpeg'},
-    {'name': 'Telur', 'image': 'images/telur.jpeg'},
-    {'name': 'Gula Pasir', 'image': 'images/gula.jpg'},
-    {'name': 'Daging Ayam', 'image': 'images/ayam.jpg'},
-    {'name': 'Daging Sapi', 'image': 'images/sapi.jpg'},
-    {'name': 'Sayur Bayam', 'image': 'images/bayam.jpg'},
-    {'name': 'Cabe Merah', 'image': 'images/cabe.jpg'},
-    {'name': 'Bawang Merah', 'image': 'images/bawang_merah.jpg'},
-    {'name': 'Bawang Putih', 'image': 'images/bawang_putih.jpg'},
-    {'name': 'Tomat', 'image': 'images/tomat.jpg'},
+    {'name': 'Beras', 'image': 'images/beras.jpg', 'price': '15000'},
+    {'name': 'Minyak Goreng', 'image': 'images/minyak.jpeg', 'price': '20000'},
+    {'name': 'Telur', 'image': 'images/telur.jpeg', 'price': '18000'},
+    {'name': 'Gula Pasir', 'image': 'images/gula.jpg', 'price': '13000'},
+    {'name': 'Daging Ayam', 'image': 'images/ayam.jpg', 'price': '35000'},
+    {'name': 'Daging Sapi', 'image': 'images/sapi.jpg', 'price': '70000'},
+    {'name': 'Sayur Bayam', 'image': 'images/bayam.jpg', 'price': '5000'},
+    {'name': 'Cabe Merah', 'image': 'images/cabe.jpg', 'price': '25000'},
+    {'name': 'Bawang Merah', 'image': 'images/bawang_merah.jpg', 'price': '30000'},
+    {'name': 'Bawang Putih', 'image': 'images/bawang_putih.jpg', 'price': '28000'},
+    {'name': 'Tomat', 'image': 'images/tomat.jpg', 'price': '8000'},
   ];
 
   List<Map<String, String>> _filteredProducts = [];
+  List<Map<String, String>> _cart = [];
 
   @override
   void initState() {
@@ -41,9 +43,8 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
 
   void _filterSearch(String query) {
     final results = _allProducts
-        .where((item) => item['name']!
-            .toLowerCase()
-            .contains(query.toLowerCase()))
+        .where((item) =>
+            item['name']!.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     setState(() {
@@ -51,9 +52,22 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
     });
   }
 
+  void _addToCart(Map<String, String> product) {
+    setState(() {
+      _cart.add(product);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("${product['name']} ditambahkan ke keranjang."),
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
   Widget _buildContent() {
     if (_currentIndex == 0) {
-      // Produk Page
+      // Halaman Produk
       return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -63,8 +77,8 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
               decoration: InputDecoration(
                 labelText: 'Cari bahan pangan...',
                 prefixIcon: Icon(Icons.search),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               onChanged: _filterSearch,
             ),
@@ -75,7 +89,7 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
                   : GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 3 / 4,
+                        childAspectRatio: 2 / 3.2,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                       ),
@@ -88,23 +102,41 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Expanded(
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                  borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(12)),
                                   child: Image.asset(
                                     product['image']!,
                                     fit: BoxFit.cover,
-                                    width: double.infinity,
                                   ),
                                 ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  product['name']!,
-                                  style: TextStyle(fontSize: 16),
-                                  textAlign: TextAlign.center,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      product['name']!,
+                                      style: TextStyle(fontSize: 16),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      "Rp ${product['price']}",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green[700]),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.add_circle,
+                                          color: Colors.green),
+                                      onPressed: () => _addToCart(product),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -117,12 +149,25 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
         ),
       );
     } else if (_currentIndex == 1) {
-      // Pembayaran Page (Placeholder)
-      return Center(
-        child: Text("Halaman Pembayaran", style: TextStyle(fontSize: 20)),
+      // Halaman Pembayaran (di file pembayaran.dart)
+      return PembayaranPage(
+        cart: _cart,
+        onRemove: (index) {
+          setState(() {
+            _cart.removeAt(index);
+          });
+        },
+        onBayar: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Pembayaran berhasil!")),
+          );
+          setState(() {
+            _cart.clear();
+          });
+        },
       );
     } else {
-      // Profile Page (Placeholder)
+      // Halaman Profil
       return Center(
         child: Text("Halaman Profil", style: TextStyle(fontSize: 20)),
       );
@@ -156,7 +201,7 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Profil',
           ),
         ],
       ),
