@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'main.dart'; // Mengarahkan ke halaman utama Marketplace
+import 'main.dart'; // Arahkan ke halaman utama Marketplace
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,14 +20,18 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Ganti IP berikut dengan IP komputer yang menjalankan server lokal kamu
-      final url = Uri.parse('http://192.168.2.30:3002/api/login');
+      // Ganti IP ini dengan IP komputer server backend kamu
+      final url = Uri.parse('http://192.168.2.30:3004/api/login');
+
       final response = await http.post(
         url,
-        body: {
-          'username': _emailController.text,
-          'password': _passwordController.text,
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: json.encode({
+          'username': _emailController.text.trim(),
+          'password': _passwordController.text.trim(),
+        }),
       );
 
       final data = jsonDecode(response.body);
@@ -35,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = false;
       });
 
-      if (data['success'] == true) {
+      if (response.statusCode == 200 && data['success'] == true) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => MarketplacePanganPage()),
