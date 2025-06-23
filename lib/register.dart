@@ -16,15 +16,14 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _register() async {
     setState(() => _isLoading = true);
 
-    final url = Uri.parse('http://192.168.2.30:3002/api/register'); // sesuaikan IP backend
+    final url = Uri.parse('http://192.168.0.190:3000/api/register'); // sesuaikan IP backend
 
     try {
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: json.encode({
-          "name": _nameController.text.trim(),
-          "email": _emailController.text.trim(),
+          "username": _emailController.text.trim(),
           "password": _passwordController.text.trim(),
         }),
       );
@@ -68,12 +67,8 @@ class _SignUpPageState extends State<SignUpPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Nama Lengkap'),
-            ),
-            TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: 'Username'),
             ),
             TextField(
               controller: _passwordController,
