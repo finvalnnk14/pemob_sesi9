@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pembayaran.dart'; // Import file pembayaran.dart
 import 'login.dart';
+import 'register.dart';
 
 void main() {
   runApp(MaterialApp(

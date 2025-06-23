@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'register.dart';
 import 'main.dart'; // Arahkan ke halaman utama Marketplace
 
 class LoginPage extends StatefulWidget {
@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       // Ganti IP ini dengan IP komputer server backend kamu
-      final url = Uri.parse('http://192.168.2.30:3004/api/login');
+      final url = Uri.parse('http://192.168.0.190:3000/api/login');
 
       final response = await http.post(
         url,
@@ -87,9 +87,23 @@ class _LoginPageState extends State<LoginPage> {
                       backgroundColor: Colors.green,
                     ),
                   ),
+                   const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SignUpPage()),
+                );
+              },
+              child: Text(
+                "Belum punya akun? Daftar di sini",
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+         
