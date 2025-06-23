@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'pembayaran.dart'; // Import file pembayaran.dart
 import 'login.dart';
 import 'register.dart';
+import 'history.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -167,6 +168,7 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
           });
         },
       );
+      
     } else {
       // Halaman Profil
       return Center(
@@ -201,9 +203,14 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
             label: 'Pembayaran',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Riwayat Belanja',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profil',
           ),
+          
         ],
       ),
     );
