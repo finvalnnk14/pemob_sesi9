@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'pembayaran.dart'; // Import file pembayaran.dart
+import 'pembayaran.dart';
 import 'login.dart';
 import 'register.dart';
-import 'history.dart';
+import 'history.dart'; // Import halaman History
 
 void main() {
   runApp(MaterialApp(
@@ -151,7 +151,7 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
         ),
       );
     } else if (_currentIndex == 1) {
-      // Halaman Pembayaran (di file pembayaran.dart)
+      // Halaman Pembayaran
       return PembayaranPage(
         cart: _cart,
         onRemove: (index) {
@@ -168,7 +168,9 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
           });
         },
       );
-      
+    } else if (_currentIndex == 2) {
+      // Halaman Riwayat Belanja
+      return HistoryPage(); // Panggil halaman history.dart
     } else {
       // Halaman Profil
       return Center(
@@ -193,6 +195,7 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
           });
         },
         selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_basket),
@@ -210,7 +213,6 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
             icon: Icon(Icons.person),
             label: 'Profil',
           ),
-          
         ],
       ),
     );
