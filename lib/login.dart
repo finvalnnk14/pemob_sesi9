@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       // Ganti IP ini dengan IP komputer server backend kamu
-      final url = Uri.parse('http://192.168.0.190:3000/api/login');
+      final url = Uri.parse('http://localhost:3000/api/login');
 
       final response = await http.post(
         url,

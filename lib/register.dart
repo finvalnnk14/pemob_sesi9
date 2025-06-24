@@ -16,7 +16,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _register() async {
     setState(() => _isLoading = true);
 
-    final url = Uri.parse('http://192.168.0.190:3000/api/register'); // sesuaikan IP backend
+    final url = Uri.parse('http://localhost:3000/api/register'); // sesuaikan IP backend
 
     try {
       final response = await http.post(
