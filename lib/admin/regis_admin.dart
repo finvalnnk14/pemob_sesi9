@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:pemob_sesi5/admin/login_admin.dart';
+
 class RegisAdminPage extends StatefulWidget {
   @override
   _RegisAdminPageState createState() => _RegisAdminPageState();
@@ -84,15 +86,18 @@ class _RegisAdminPageState extends State<RegisAdminPage> {
                     ),
                   ),
             const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Kembali ke login
-              },
-              child: Text(
-                "Sudah punya akun? Login di sini",
-                style: TextStyle(color: Colors.green),
-              ),
-            ),
+           TextButton(
+            onPressed: () {
+            Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginAdminPage()),
+            );
+  },
+  child: Text(
+    "Sudah punya akun? Login di sini",
+    style: TextStyle(color: Colors.green),
+  ),
+),
           ],
         ),
       ),

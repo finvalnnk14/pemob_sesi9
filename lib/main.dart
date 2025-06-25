@@ -4,6 +4,7 @@ import 'login.dart';
 import 'register.dart';
 import 'history.dart'; // Import halaman History
 import 'admin/regis_admin.dart';
+import 'package:pemob_sesi5/admin/login_admin.dart';
 
 void main() {
   runApp(MaterialApp(

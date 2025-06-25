@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pemob_sesi5/admin/regis_admin.dart';
-import 'package:pemob_sesi5/admin/login_admin.dart';
 import 'dart:convert';
-import 'register.dart';
-import 'main.dart'; // Arahkan ke halaman utama Marketplace
 
+import 'package:pemob_sesi5/admin/admin.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginAdminPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginAdminPageState createState() => _LoginAdminPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginAdminPageState extends State<LoginAdminPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -23,21 +20,22 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // Ganti IP ini dengan IP komputer server backend kamu
-      final url = Uri.parse('http://localhost:3000/api/login');
+      // Ganti localhost -> 10.0.2.2 untuk Android emulator
+      final url = Uri.parse('http://localhost:3000/api/admin/masuk_admin');
 
       final response = await http.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'username': _emailController.text.trim(),
+          'email': _emailController.text.trim(),
           'password': _passwordController.text.trim(),
         }),
       );
 
       final data = jsonDecode(response.body);
+      print('STATUS CODE: ${response.statusCode}');
+      print('RESPONSE: $data');
+
       setState(() {
         _isLoading = false;
       });
@@ -45,7 +43,12 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200 && data['success'] == true) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MarketplacePanganPage()),
+          MaterialPageRoute(
+            builder: (context) => AdminDashboardPage(
+              adminName: "Admin", // fallback karena tidak dikirim oleh backend
+              adminEmail: data['admin']['email'],
+            ),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login'), backgroundColor: Colors.green),
+      appBar: AppBar(title: Text('Login Admin'), backgroundColor: Colors.green),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -85,41 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                 ? CircularProgressIndicator()
                 : ElevatedButton(
                     onPressed: _login,
-                    child: Text('Login'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
+                    child: Text('Login Admin'),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   ),
-                   const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignUpPage()),
-                );
-              },
-              child: Text(
-                "Belum punya akun? Daftar di sini",
-                style: TextStyle(color: Colors.green),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisAdminPage()),
-                );
-              },
-              child: Text(
-                "Ingin menjadi mitra? Daftar di sini",
-                style: TextStyle(color: Colors.green),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 }
-
-         
