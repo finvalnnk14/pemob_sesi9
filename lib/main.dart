@@ -3,6 +3,7 @@ import 'pembayaran.dart';
 import 'login.dart';
 import 'register.dart';
 import 'history.dart'; // Import halaman History
+import 'admin/regis_admin.dart';
 
 void main() {
   runApp(MaterialApp(
