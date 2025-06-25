@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'tracking.dart'; // ✅ Tambahkan ini
 
 class HistoryPage extends StatefulWidget {
   @override
@@ -77,6 +78,14 @@ class _HistoryPageState extends State<HistoryPage> {
                           ],
                         ),
                         leading: Icon(Icons.receipt, color: Colors.green),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TrackingPage(item: item),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
