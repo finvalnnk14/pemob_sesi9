@@ -5,8 +5,12 @@ import 'register.dart';
 import 'history.dart'; // Import halaman History
 import 'admin/regis_admin.dart';
 import 'package:pemob_sesi5/admin/login_admin.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // wajib jika pakai async di main
+  await initializeDateFormatting('id_ID', null); // inisialisasi locale Indonesia
   runApp(MaterialApp(
     home: LoginPage(),
     debugShowCheckedModeBanner: false,

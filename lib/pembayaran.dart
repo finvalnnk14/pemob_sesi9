@@ -48,6 +48,9 @@ class _PembayaranPageState extends State<PembayaranPage> {
           SnackBar(content: Text("Pembayaran berhasil!")),
         );
         widget.onBayar(); // kosongkan cart
+
+         // Kirim data ke halaman admin
+         
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Gagal menyimpan ke database.")),
