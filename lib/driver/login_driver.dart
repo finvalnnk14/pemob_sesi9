@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// Import halaman dashboard driver (pastikan file & class ini sudah dibuat)
-import 'package:pemob_sesi5/driver/driver.dart';
+// ✅ Import halaman dashboard driver (pastikan path-nya sesuai)
+import 'driver.dart';
 
 class LoginDriverPage extends StatefulWidget {
   @override
@@ -42,16 +42,23 @@ class _LoginDriverPageState extends State<LoginDriverPage> {
       });
 
       if (response.statusCode == 200 && data['success'] == true) {
-       Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (context) => DriverDashboardPage(
-      driverName: data['driver']['nama_driver'] ?? "Driver",
-      driverEmail: "", // Kosongkan atau hapus kalau tidak perlu
-    ),
-  ),
-);
+        // Contoh dummy latest order — ganti sesuai respons backend-mu
+        final latestOrder = data['latestOrder'] ?? {
+          'items': [],
+          'total': 0,
+          'timestamp': DateTime.now().toString(),
+        };
 
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DriverDashboardPage(
+              driverName: data['driver']['nama_driver'] ?? "Driver",
+              driverEmail: data['driver']['email'] ?? "", // Atur jika ada
+              latestOrder: latestOrder,
+            ),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login gagal: ${data['message']}')),
@@ -70,7 +77,8 @@ class _LoginDriverPageState extends State<LoginDriverPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login Driver'), backgroundColor: Colors.green),
+      appBar:
+          AppBar(title: Text('Login Driver'), backgroundColor: Colors.green),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -78,7 +86,7 @@ class _LoginDriverPageState extends State<LoginDriverPage> {
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: 'Nama Driver'),
             ),
             TextField(
               controller: _passwordController,
@@ -91,7 +99,8 @@ class _LoginDriverPageState extends State<LoginDriverPage> {
                 : ElevatedButton(
                     onPressed: _login,
                     child: Text('Login Driver'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green),
                   ),
           ],
         ),
