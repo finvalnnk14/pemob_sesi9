@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pemob_sesi5/admin/regis_admin.dart';
 import 'package:pemob_sesi5/admin/login_admin.dart';
+import 'package:pemob_sesi5/driver/regis_driver.dart';
 import 'dart:convert';
 import 'register.dart';
 import 'main.dart'; // Arahkan ke halaman utama Marketplace
@@ -112,6 +113,18 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: Text(
                 "Ingin menjadi mitra? Daftar di sini",
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisDriverPage()),
+                );
+              },
+              child: Text(
+                "Ingin menjadi driver mitra? Daftar di sini",
                 style: TextStyle(color: Colors.green),
               ),
             ),
