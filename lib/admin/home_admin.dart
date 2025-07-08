@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http; // ✅ Import http
+import 'dart:convert'; // ✅ Untuk jsonEncode
 import 'order_onprogress.dart'; // ✅ Import halaman tujuan
 
-class HomeAdminPage extends StatelessWidget {
+class HomeAdminPage extends StatefulWidget {
   final String adminName;
   final String adminEmail;
   final Map<String, dynamic> latestOrder;
@@ -15,10 +17,54 @@ class HomeAdminPage extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<HomeAdminPage> createState() => _HomeAdminPageState();
+}
+
+class _HomeAdminPageState extends State<HomeAdminPage> {
+  Future<void> accOrder() async {
+    final url = Uri.parse('http://192.168.2.30:3000/api/admin/pesanan'); // ✅ Ganti URL API
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'orderId': widget.latestOrder['id'],
+          'status': 'accepted',
+          'adminName': widget.adminName,
+          'adminEmail': widget.adminEmail,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Pesanan berhasil di-ACC & disimpan!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Gagal mengirim data ke server"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Terjadi error: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final items = latestOrder['items'] ?? [];
-    final total = latestOrder['total'];
-    final timestamp = latestOrder['timestamp'];
+    final items = widget.latestOrder['items'] ?? [];
+    final total = widget.latestOrder['total'];
+    final timestamp = widget.latestOrder['timestamp'];
 
     final formattedDate =
         DateFormat("EEEE, dd/MM/yyyy", "id_ID").format(DateTime.now());
@@ -136,18 +182,14 @@ class HomeAdminPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text("Pesanan di-ACC"),
-                                backgroundColor: Colors.green),
-                          );
+                        onPressed: () async {
+                          await accOrder(); // ✅ Kirim ke API
                           // Navigasi ke halaman OrderOnProgressPage sambil bawa data
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => OrderOnProgressPage(
-                                orders: [latestOrder],
+                                orders: [widget.latestOrder],
                               ),
                             ),
                           );
@@ -159,25 +201,22 @@ class HomeAdminPage extends StatelessWidget {
                           shape: StadiumBorder(),
                         ),
                       ),
-                     ElevatedButton.icon(
-  onPressed: () {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Pesanan ditolak"),
-        backgroundColor: Colors.red,
-      ),
-    );
-    // Tidak perlu pop, cukup tetap di halaman ini
-    // Jika mau tambahkan logika lain (misalnya update UI), lakukan di sini
-  },
-  icon: Icon(Icons.close),
-  label: Text("Tolak"),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.red,
-    shape: StadiumBorder(),
-  ),
-),
-
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Pesanan ditolak"),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.close),
+                        label: Text("Tolak"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          shape: StadiumBorder(),
+                        ),
+                      ),
                     ],
                   )
                 ],
@@ -192,12 +231,11 @@ class HomeAdminPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: () {
-                // Navigasi ke halaman OrderOnProgressPage tanpa data baru
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderOnProgressPage(
-                      orders: [latestOrder], // Atur list orders di sini
+                      orders: [widget.latestOrder],
                     ),
                   ),
                 );
@@ -207,8 +245,8 @@ class HomeAdminPage extends StatelessWidget {
                 shape: StadiumBorder(),
                 minimumSize: Size(double.infinity, 50),
               ),
-              child: Text("Order On Progress",
-                  style: TextStyle(fontSize: 16)),
+              child:
+                  Text("Order On Progress", style: TextStyle(fontSize: 16)),
             ),
           ),
         ],
