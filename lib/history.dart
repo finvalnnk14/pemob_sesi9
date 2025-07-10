@@ -79,13 +79,15 @@ class _HistoryPageState extends State<HistoryPage> {
                         ),
                         leading: Icon(Icons.receipt, color: Colors.green),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TrackingPage(item: item),
-                            ),
-                          );
-                        },
+  print(item); // ⏪ Debug
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => TrackingPage(item: item),
+    ),
+  );
+},
+
                       ),
                     );
                   },
