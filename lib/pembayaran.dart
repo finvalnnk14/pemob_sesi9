@@ -26,11 +26,9 @@ class _PembayaranPageState extends State<PembayaranPage> {
   }
 
   Future<void> _submitPembayaran() async {
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
-    final url = Uri.parse("http://localhost:3000/api/order"); // ganti dengan endpoint kamu
+    final url = Uri.parse("http://localhost:3000/api/order");
 
     try {
       final response = await http.post(
@@ -48,9 +46,6 @@ class _PembayaranPageState extends State<PembayaranPage> {
           SnackBar(content: Text("Pembayaran berhasil!")),
         );
         widget.onBayar(); // kosongkan cart
-
-         // Kirim data ke halaman admin
-         
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Gagal menyimpan ke database.")),
@@ -62,63 +57,134 @@ class _PembayaranPageState extends State<PembayaranPage> {
       );
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: widget.cart.isEmpty
-              ? Center(child: Text("Belum ada produk ditambahkan."))
-              : ListView.builder(
-                  itemCount: widget.cart.length,
-                  itemBuilder: (context, index) {
-                    final item = widget.cart[index];
-                    return ListTile(
-                      leading: Image.asset(item['image']!, width: 50, height: 50),
-                      title: Text(item['name']!),
-                      subtitle: Text("Rp ${item['price']}"),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => widget.onRemove(index),
-                      ),
-                    );
-                  },
-                ),
-        ),
-        if (widget.cart.isNotEmpty)
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16),
-            color: Colors.green,
-            child: Column(
-              children: [
-                Text(
-                  "Total: Rp ${_calculateTotal()}",
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-                SizedBox(height: 8),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.green,
+    return Scaffold(
+      body: Column(
+        children: [
+          Expanded(
+            child: widget.cart.isEmpty
+                ? Center(child: Text("Belum ada produk ditambahkan."))
+                : ListView.builder(
+                    itemCount: widget.cart.length,
+                    itemBuilder: (context, index) {
+                      final item = widget.cart[index];
+                      return Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                item['image']!,
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    item['name']!,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    "Rp ${item['price']}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.orange,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => widget.onRemove(index),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  onPressed: isLoading ? null : _submitPembayaran,
-                  child: isLoading
-                      ? CircularProgressIndicator()
-                      : Text("Bayar Sekarang"),
-                ),
-              ],
-            ),
           ),
-      ],
+          if (widget.cart.isNotEmpty)
+            Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade600,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade700,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Total:",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold)),
+                        Text("Rp ${_calculateTotal()}",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    onPressed: isLoading ? null : _submitPembayaran,
+                    child: isLoading
+                        ? CircularProgressIndicator()
+                        : Text("Bayar Sekarang", style: TextStyle(fontSize: 16)),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

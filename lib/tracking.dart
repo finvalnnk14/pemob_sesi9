@@ -87,47 +87,20 @@ class _TrackingPageState extends State<TrackingPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundImage: NetworkImage(
-                                'https://i.pravatar.cc/150?img=3'),
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Cristopert Dastin',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold)),
-                                Text('ID 213752',
-                                    style: TextStyle(color: Colors.grey)),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: Colors.orange[100],
-                                child: const Icon(Icons.message,
-                                    color: Colors.orange),
-                              ),
-                              const SizedBox(width: 10),
-                              CircleAvatar(
-                                backgroundColor: Colors.orange[100],
-                                child: const Icon(Icons.phone,
-                                    color: Colors.orange),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                    
+  Padding(
+  padding: const EdgeInsets.all(16),
+  child: Center(
+    child: Image.asset(
+      'images/shopping.gif',
+      width: 120, // Ukuran lebih besar, sesuaikan
+      height: 120,
+      fit: BoxFit.contain,
+    ),
+  ),
+),
+
+
                     const Divider(),
                     const Padding(
                       padding:
