@@ -55,7 +55,7 @@ class _LoginDriverPageState extends State<LoginDriverPage> {
             builder: (context) => DriverDashboardPage(
               driverName: data['driver']['nama_driver'] ?? "Driver",
               driverEmail: data['driver']['email'] ?? "", // Atur jika ada
-              latestOrder: latestOrder,
+              
             ),
           ),
         );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'detail_order_on_progress.dart';
 
 class OrderOnProgressPage extends StatelessWidget {
   final List<Map<String, dynamic>> orders;
@@ -21,21 +22,31 @@ class OrderOnProgressPage extends StatelessWidget {
           final total = order['total'];
           final timestamp = order['timestamp'];
 
-          return Card(
-            margin: EdgeInsets.all(12),
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Total: Rp $total"),
-                  Text("Waktu: $timestamp"),
-                  SizedBox(height: 8),
-                  Text("Item:"),
-                  ...items.map<Widget>((item) {
-                    return Text("- ${item['name']} (Rp ${item['price']})");
-                  }).toList(),
-                ],
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailOrderOnProgressPage(order: order),
+                ),
+              );
+            },
+            child: Card(
+              margin: EdgeInsets.all(12),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Total: Rp $total"),
+                    Text("Waktu: $timestamp"),
+                    SizedBox(height: 8),
+                    Text("Item:"),
+                    ...items.map<Widget>((item) {
+                      return Text("- ${item['name']} (Rp ${item['price']})");
+                    }).toList(),
+                  ],
+                ),
               ),
             ),
           );

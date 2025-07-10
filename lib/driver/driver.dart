@@ -1,24 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'order_onprogress_driver.dart'; // ✅ Import halaman tujuan
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class DriverDashboardPage extends StatelessWidget {
+import 'order_onprogress_driver.dart';
+
+class DriverDashboardPage extends StatefulWidget {
   final String driverName;
   final String driverEmail;
-  final Map<String, dynamic> latestOrder;
 
   const DriverDashboardPage({
     Key? key,
     required this.driverName,
     required this.driverEmail,
-    required this.latestOrder,
   }) : super(key: key);
+
+  @override
+  State<DriverDashboardPage> createState() => _DriverDashboardPageState();
+}
+
+class _DriverDashboardPageState extends State<DriverDashboardPage> {
+  Map<String, dynamic> latestOrder = {};
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLatestOrder();
+  }
+
+  Future<void> fetchLatestOrder() async {
+  final url = Uri.parse('http://localhost:3000/api/admin/pesanan');
+  try {
+    final response = await http.get(url);
+    print("Status Code: ${response.statusCode}");
+    print("Body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print("Parsed: $data");
+      setState(() {
+        latestOrder = data;
+      });
+    } else {
+      print("Failed: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("Error: $e");
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     final items = latestOrder['items'] ?? [];
-    final total = latestOrder['total'];
-    final timestamp = latestOrder['timestamp'];
+    final total = latestOrder['total'] ?? 0;
+    final timestamp = latestOrder['timestamp'] ?? '-';
 
     final formattedDate =
         DateFormat("EEEE, dd/MM/yyyy", "id_ID").format(DateTime.now());
@@ -29,6 +65,12 @@ class DriverDashboardPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Dashboard Driver"),
         backgroundColor: Colors.orange,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: fetchLatestOrder,
+          )
+        ],
       ),
       body: Column(
         children: [
@@ -48,7 +90,7 @@ class DriverDashboardPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Halo, $driverName",
+                  "Halo, ${widget.driverName}",
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
                 SizedBox(height: 4),
@@ -93,75 +135,84 @@ class DriverDashboardPage extends StatelessWidget {
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Total Pembayaran: Rp $total",
-                      style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 4),
-                  Text("Waktu Pesanan: $timestamp",
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                  SizedBox(height: 12),
-                  Text("Detail Pesanan:",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  SizedBox(height: 8),
-                  if (items is List)
-                    ...items.map((item) {
-                      final itemName = item['name'] ?? 'Produk';
-                      final itemPrice = item['price'] ?? '0';
-                      return Text("- $itemName (Rp $itemPrice)");
-                    }).toList()
-                  else
-                    Text("Data item tidak tersedia"),
-                  SizedBox(height: 16),
+              child: latestOrder.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Belum ada pesanan.",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Total Pembayaran: Rp $total",
+                            style: TextStyle(fontSize: 16)),
+                        SizedBox(height: 4),
+                        Text("Waktu Pesanan: $timestamp",
+                            style:
+                                TextStyle(color: Colors.grey[600], fontSize: 12)),
+                        SizedBox(height: 12),
+                        Text("Detail Pesanan:",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        if (items is List)
+                          ...items.map((item) {
+                            final itemName = item['name'] ?? 'Produk';
+                            final itemPrice = item['price'] ?? '0';
+                            return Text("- $itemName (Rp $itemPrice)");
+                          }).toList()
+                        else
+                          Text("Data item tidak tersedia"),
+                        SizedBox(height: 16),
 
-                  // Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text("Pesanan diterima"),
-                                backgroundColor: Colors.green),
-                          );
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OrderOnProgressDriverPage(
-                                orders: [latestOrder],
+                        // Buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("Pesanan diterima"),
+                                      backgroundColor: Colors.green),
+                                );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        OrderOnProgressDriverPage(
+                                      orders: [latestOrder],
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: Icon(Icons.check),
+                              label: Text("Terima"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                shape: StadiumBorder(),
                               ),
                             ),
-                          );
-                        },
-                        icon: Icon(Icons.check),
-                        label: Text("Terima"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: StadiumBorder(),
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text("Pesanan ditolak"),
-                                backgroundColor: Colors.red),
-                          );
-                          // Logika tambahan jika perlu
-                        },
-                        icon: Icon(Icons.close),
-                        label: Text("Tolak"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: StadiumBorder(),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text("Pesanan ditolak"),
+                                      backgroundColor: Colors.red),
+                                );
+                                // Tambah logika tolak kalau perlu
+                              },
+                              icon: Icon(Icons.close),
+                              label: Text("Tolak"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                shape: StadiumBorder(),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
             ),
           ),
 
@@ -172,14 +223,20 @@ class DriverDashboardPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => OrderOnProgressDriverPage(
-                      orders: [latestOrder],
+                if (latestOrder.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OrderOnProgressDriverPage(
+                        orders: [latestOrder],
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Belum ada pesanan.")),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
