@@ -181,26 +181,64 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          await accOrder(); // ✅ Kirim ke API
-                          // Navigasi ke halaman OrderOnProgressPage sambil bawa data
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OrderOnProgressPage(
-                                orders: [widget.latestOrder],
-                              ),
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.check),
-                        label: Text("ACC"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: StadiumBorder(),
-                        ),
-                      ),
+                    ElevatedButton.icon(
+  onPressed: () async {
+    final url = Uri.parse('http://localhost:3000/api/admin/pesanan');
+    try {
+      final response = await http.post(
+  url,
+  headers: {'Content-Type': 'application/json'},
+  body: jsonEncode({
+    'status': 'accepted',
+    'total': widget.latestOrder['total'],
+  }),
+);
+
+
+      if (response.statusCode == 200) {
+        // ✅ Berhasil simpan ke database
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Pesanan berhasil di-ACC & disimpan!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // ✅ Setelah berhasil baru pindah halaman
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OrderOnProgressPage(
+              orders: [widget.latestOrder],
+            ),
+          ),
+        );
+      } else {
+        // Gagal
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Gagal menyimpan ke database"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Terjadi error: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  },
+  icon: Icon(Icons.check),
+  label: Text("ACC"),
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.green,
+    shape: StadiumBorder(),
+  ),
+),
+
                       ElevatedButton.icon(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
