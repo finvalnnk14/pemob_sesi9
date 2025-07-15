@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'pembayaran.dart';
 import 'login.dart';
 import 'register.dart';
-import 'history.dart'; // Import halaman History
+import 'history.dart'; 
+import 'profile.dart';
 import 'admin/regis_admin.dart';
 import 'package:pemob_sesi5/admin/login_admin.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -179,9 +180,7 @@ class _MarketplacePanganPageState extends State<MarketplacePanganPage> {
       return HistoryPage(); // Panggil halaman history.dart
     } else {
       // Halaman Profil
-      return Center(
-        child: Text("Halaman Profil", style: TextStyle(fontSize: 20)),
-      );
+      return ProfilePage(username: 'fina123',);
     }
   }
 

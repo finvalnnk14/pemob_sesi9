@@ -29,32 +29,44 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
   }
 
   Future<void> fetchLatestOrder() async {
-  final url = Uri.parse('http://localhost:3000/api/admin/pesanan');
-  try {
-    final response = await http.get(url);
-    print("Status Code: ${response.statusCode}");
-    print("Body: ${response.body}");
+    final url = Uri.parse('http://localhost:3000/api/driver/pengiriman');
+    try {
+      final response = await http.get(url);
+      print("Status Code: ${response.statusCode}");
+      print("Body: ${response.body}");
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print("Parsed: $data");
-      setState(() {
-        latestOrder = data;
-      });
-    } else {
-      print("Failed: ${response.statusCode}");
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print("Parsed: $data");
+
+        if (data is List && data.isNotEmpty) {
+          // Urutkan kalau perlu, contoh:
+          data.sort((a, b) =>
+              DateTime.parse(b['timestamp'])
+                  .compareTo(DateTime.parse(a['timestamp'])));
+
+          setState(() {
+            latestOrder = data.first; // Ambil pesanan terbaru
+          });
+        } else {
+          print("Data kosong atau bukan list");
+        }
+      } else {
+        print("Failed: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error: $e");
     }
-  } catch (e) {
-    print("Error: $e");
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
-    final items = latestOrder['items'] ?? [];
+
+    final harga = latestOrder['price'] ?? 0;
     final total = latestOrder['total'] ?? 0;
     final timestamp = latestOrder['timestamp'] ?? '-';
+    final username = latestOrder['username'] ?? '-';
+    final address = latestOrder['address'] ?? '-';
 
     final formattedDate =
         DateFormat("EEEE, dd/MM/yyyy", "id_ID").format(DateTime.now());
@@ -63,11 +75,11 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Dashboard Driver"),
+        title: const Text("Dashboard Driver"),
         backgroundColor: Colors.orange,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: fetchLatestOrder,
           )
         ],
@@ -76,10 +88,10 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
         children: [
           // Header Card
           Container(
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.all(16),
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [Colors.orange, Colors.deepOrangeAccent],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -91,22 +103,22 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
               children: [
                 Text(
                   "Halo, ${widget.driverName}",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  "$formattedDate",
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  formattedDate,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 Align(
                   alignment: Alignment.topRight,
                   child: Text(
                     formattedTime,
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ),
-                SizedBox(height: 12),
-                Center(
+                const SizedBox(height: 12),
+                const Center(
                   child: Column(
                     children: [
                       Text(
@@ -130,13 +142,13 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
             padding: const EdgeInsets.all(16.0),
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
               ),
               child: latestOrder.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Text(
                         "Belum ada pesanan.",
                         style: TextStyle(color: Colors.grey),
@@ -145,26 +157,23 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Total Pembayaran: Rp $total",
-                            style: TextStyle(fontSize: 16)),
-                        SizedBox(height: 4),
+                        Text("Harga: Rp $harga",
+                            style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 4),
+                        Text("Total: Rp $total",
+                            style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 4),
                         Text("Waktu Pesanan: $timestamp",
-                            style:
-                                TextStyle(color: Colors.grey[600], fontSize: 12)),
-                        SizedBox(height: 12),
-                        Text("Detail Pesanan:",
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 8),
-                        if (items is List)
-                          ...items.map((item) {
-                            final itemName = item['name'] ?? 'Produk';
-                            final itemPrice = item['price'] ?? '0';
-                            return Text("- $itemName (Rp $itemPrice)");
-                          }).toList()
-                        else
-                          Text("Data item tidak tersedia"),
-                        SizedBox(height: 16),
+                            style: TextStyle(
+                                color: Colors.grey[600], fontSize: 12)),
+                        const SizedBox(height: 4),
+                        Text("Username: $username",
+                            style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 16),
 
+                         Text("Alamat: $address",
+                            style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 16),
                         // Buttons
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -172,7 +181,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                             ElevatedButton.icon(
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
+                                  const SnackBar(
                                       content: Text("Pesanan diterima"),
                                       backgroundColor: Colors.green),
                                 );
@@ -186,27 +195,27 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                                   ),
                                 );
                               },
-                              icon: Icon(Icons.check),
-                              label: Text("Terima"),
+                              icon: const Icon(Icons.check),
+                              label: const Text("Terima"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
-                                shape: StadiumBorder(),
+                                shape: const StadiumBorder(),
                               ),
                             ),
                             ElevatedButton.icon(
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
+                                  const SnackBar(
                                       content: Text("Pesanan ditolak"),
                                       backgroundColor: Colors.red),
                                 );
                                 // Tambah logika tolak kalau perlu
                               },
-                              icon: Icon(Icons.close),
-                              label: Text("Tolak"),
+                              icon: const Icon(Icons.close),
+                              label: const Text("Tolak"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
-                                shape: StadiumBorder(),
+                                shape: const StadiumBorder(),
                               ),
                             ),
                           ],
@@ -216,7 +225,7 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
             ),
           ),
 
-          Spacer(),
+          const Spacer(),
 
           // Bottom Button
           Padding(
@@ -234,16 +243,16 @@ class _DriverDashboardPageState extends State<DriverDashboardPage> {
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Belum ada pesanan.")),
+                    const SnackBar(content: Text("Belum ada pesanan.")),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
-                shape: StadiumBorder(),
-                minimumSize: Size(double.infinity, 50),
+                shape: const StadiumBorder(),
+                minimumSize: const Size(double.infinity, 50),
               ),
-              child: Text("Lihat Pesanan Berjalan",
+              child: const Text("Lihat Pesanan Berjalan",
                   style: TextStyle(fontSize: 16)),
             ),
           ),
