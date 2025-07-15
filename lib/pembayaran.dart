@@ -25,40 +25,44 @@ class _PembayaranPageState extends State<PembayaranPage> {
     return widget.cart.fold(0, (total, item) => total + int.parse(item['price']!));
   }
 
-  Future<void> _submitPembayaran() async {
-    setState(() => isLoading = true);
+ Future<void> _submitPembayaran() async {
+  setState(() => isLoading = true);
 
-    final url = Uri.parse("http://localhost:3000/api/order");
+  final url = Uri.parse("http://localhost:3000/api/order");
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "items": widget.cart,
-          "total": _calculateTotal(),
-          "timestamp": DateTime.now().toIso8601String(),
-        }),
-      );
+  final String username = "fina123"; // ganti dengan username user yang login
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Pembayaran berhasil!")),
-        );
-        widget.onBayar(); // kosongkan cart
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal menyimpan ke database.")),
-        );
-      }
-    } catch (e) {
+  try {
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "items": widget.cart,
+        "total": _calculateTotal(),
+        "timestamp": DateTime.now().toIso8601String(),
+        "username": username, // INI WAJIB!
+      }),
+    );
+
+    if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Terjadi kesalahan: $e")),
+        SnackBar(content: Text("Pembayaran berhasil!")),
+      );
+      widget.onBayar();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal menyimpan ke database.")),
       );
     }
-
-    setState(() => isLoading = false);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Terjadi kesalahan: $e")),
+    );
   }
+
+  setState(() => isLoading = false);
+}
+
 
   @override
   Widget build(BuildContext context) {
