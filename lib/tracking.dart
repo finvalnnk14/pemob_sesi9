@@ -20,22 +20,20 @@ class _TrackingPageState extends State<TrackingPage> {
     statusFuture = fetchCombinedStatus();
   }
 
-  /// ✅ Fungsi ini akan menarik status dari kedua API
   Future<String> fetchCombinedStatus() async {
     try {
-      // API 1: Admin
+      // API dari Admin
       final responseAdmin = await http.get(
         Uri.parse('http://localhost:3000/api/admin/pesanan?status=accepted'),
         headers: {'Content-Type': 'application/json'},
       );
 
-      // API 2: Driver
+      // API dari Driver
       final responseDriver = await http.get(
         Uri.parse('http://localhost:3000/api/driver/terima?status=cooking'),
         headers: {'Content-Type': 'application/json'},
       );
 
-      // Parsing admin
       String adminStatus = 'pending';
       if (responseAdmin.statusCode == 200) {
         final body = jsonDecode(responseAdmin.body);
@@ -47,7 +45,6 @@ class _TrackingPageState extends State<TrackingPage> {
         }
       }
 
-      // Parsing driver
       String driverStatus = 'pending';
       if (responseDriver.statusCode == 200) {
         final body = jsonDecode(responseDriver.body);
@@ -62,7 +59,6 @@ class _TrackingPageState extends State<TrackingPage> {
       print('Admin Status: $adminStatus');
       print('Driver Status: $driverStatus');
 
-      // ✅ Gabungkan logika prioritas status (misal: kalau driver sudah "cooking", ambil itu)
       if (driverStatus != 'pending') {
         return driverStatus;
       } else {
@@ -93,6 +89,13 @@ class _TrackingPageState extends State<TrackingPage> {
       default:
         return 1;
     }
+  }
+
+  String getImageForStep(int step) {
+    if (step >= 4) return 'images/done.gif';
+    if (step >= 3) return 'images/delivery.gif';
+    if (step >= 2) return 'images/driver.gif';
+    return 'images/shopping.gif';
   }
 
   @override
@@ -132,7 +135,7 @@ class _TrackingPageState extends State<TrackingPage> {
                       padding: const EdgeInsets.all(16),
                       child: Center(
                         child: Image.asset(
-                          'images/shopping.gif',
+                          getImageForStep(step),
                           width: 120,
                           height: 120,
                           fit: BoxFit.contain,
