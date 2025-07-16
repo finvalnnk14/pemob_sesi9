@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'kontak_driver.dart';
 
 class OrderOnProgressDriverPage extends StatelessWidget {
   final List<Map<String, dynamic>> orders;
@@ -24,29 +25,44 @@ class OrderOnProgressDriverPage extends StatelessWidget {
           final destination = order['destination'] ?? 'Alamat tidak tersedia';
           final status = order['status'] ?? 'Dalam Perjalanan';
 
-          return Card(
-            margin: EdgeInsets.all(12),
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Nama Customer: $customerName",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+          return GestureDetector(
+            onTap: () {
+              // Navigasi ke halaman kontak_driver.dart saat card diklik
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => KontakDriverPage(
+                    customerName: customerName,
+                    customerId: order['customerId'] ?? 'Unknown',
+                    imageUrl: order['photoUrl'] ?? '',
                   ),
-                  SizedBox(height: 4),
-                  Text("Tujuan: $destination"),
-                  SizedBox(height: 4),
-                  Text("Total: Rp $total"),
-                  Text("Waktu: $timestamp"),
-                  Text("Status: $status"),
-                  SizedBox(height: 8),
-                  Text("Item:"),
-                  ...items.map<Widget>((item) {
-                    return Text("- ${item['name']} (Rp ${item['price']})");
-                  }).toList(),
-                ],
+                ),
+              );
+            },
+            child: Card(
+              margin: EdgeInsets.all(12),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Nama Customer: $customerName",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 4),
+                    Text("Tujuan: $destination"),
+                    SizedBox(height: 4),
+                    Text("Total: Rp $total"),
+                    Text("Waktu: $timestamp"),
+                    Text("Status: $status"),
+                    SizedBox(height: 8),
+                    Text("Item:"),
+                    ...items.map<Widget>((item) {
+                      return Text("- ${item['name']} (Rp ${item['price']})");
+                    }).toList(),
+                  ],
+                ),
               ),
             ),
           );
