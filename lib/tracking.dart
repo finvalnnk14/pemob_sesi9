@@ -17,36 +17,67 @@ class _TrackingPageState extends State<TrackingPage> {
   @override
   void initState() {
     super.initState();
-    statusFuture = fetchStatus();
+    statusFuture = fetchCombinedStatus();
   }
 
-  Future<String> fetchStatus() async {
-    final response = await http.get(
-      Uri.parse('http://localhost:3000/api/admin/pesanan?status=accepted'),
-      headers: {'Content-Type': 'application/json'},
-    );
+  /// ✅ Fungsi ini akan menarik status dari kedua API
+  Future<String> fetchCombinedStatus() async {
+    try {
+      // API 1: Admin
+      final responseAdmin = await http.get(
+        Uri.parse('http://localhost:3000/api/admin/pesanan?status=accepted'),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+      // API 2: Driver
+      final responseDriver = await http.get(
+        Uri.parse('http://localhost:3000/api/driver/terima?status=cooking'),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-      final data = body['data'];
-
-      if (data is List && data.isNotEmpty) {
-        final status = data[0]['status'] ?? 'pending';
-        print('API STATUS: $status');
-        return status;
-      } else if (data is Map<String, dynamic>) {
-        final status = data['status'] ?? 'pending';
-        print('API STATUS: $status');
-        return status;
-      } else {
-        return 'pending';
+      // Parsing admin
+      String adminStatus = 'pending';
+      if (responseAdmin.statusCode == 200) {
+        final body = jsonDecode(responseAdmin.body);
+        final data = body['data'];
+        if (data is List && data.isNotEmpty) {
+          adminStatus = data[0]['status'] ?? 'pending';
+        } else if (data is Map<String, dynamic>) {
+          adminStatus = data['status'] ?? 'pending';
+        }
       }
-    } else {
-      throw Exception('Gagal mengambil status dari API');
+
+      // Parsing driver
+      String driverStatus = 'pending';
+      if (responseDriver.statusCode == 200) {
+        final body = jsonDecode(responseDriver.body);
+        final data = body['data'];
+        if (data is List && data.isNotEmpty) {
+          driverStatus = data[0]['status'] ?? 'pending';
+        } else if (data is Map<String, dynamic>) {
+          driverStatus = data['status'] ?? 'pending';
+        }
+      }
+
+      print('Admin Status: $adminStatus');
+      print('Driver Status: $driverStatus');
+
+      // ✅ Gabungkan logika prioritas status (misal: kalau driver sudah "cooking", ambil itu)
+      if (driverStatus != 'pending') {
+        return driverStatus;
+      } else {
+        return adminStatus;
+      }
+    } catch (e) {
+      print("Error fetching status: $e");
+      return 'pending';
     }
+  }
+
+  Future<void> refreshStatus() async {
+    setState(() {
+      statusFuture = fetchCombinedStatus();
+    });
   }
 
   int getCurrentStep(String status) {
@@ -60,7 +91,7 @@ class _TrackingPageState extends State<TrackingPage> {
       case 'done':
         return 4;
       default:
-        return 1; // fallback minimal step = 1 supaya icon pertama tetap aktif
+        return 1;
     }
   }
 
@@ -70,6 +101,16 @@ class _TrackingPageState extends State<TrackingPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text("Tracking Pesanan"),
+        backgroundColor: Colors.orange,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: refreshStatus,
+          )
+        ],
+      ),
       body: SafeArea(
         child: FutureBuilder<String>(
           future: statusFuture,
@@ -87,24 +128,20 @@ class _TrackingPageState extends State<TrackingPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    
-  Padding(
-  padding: const EdgeInsets.all(16),
-  child: Center(
-    child: Image.asset(
-      'images/shopping.gif',
-      width: 120, // Ukuran lebih besar, sesuaikan
-      height: 120,
-      fit: BoxFit.contain,
-    ),
-  ),
-),
-
-
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(
+                        child: Image.asset(
+                          'images/shopping.gif',
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
                     const Divider(),
                     const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -113,18 +150,16 @@ class _TrackingPageState extends State<TrackingPage> {
                                   fontWeight: FontWeight.bold, fontSize: 16)),
                           SizedBox(height: 4),
                           Text("Estimated 8:30 - 9:15 PM",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 14)),
+                              style: TextStyle(color: Colors.grey, fontSize: 14)),
                         ],
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildTrackingIcon(Icons.event_note, true), // icon pertama selalu aktif
+                          _buildTrackingIcon(Icons.event_note, true),
                           _buildDashedLine(),
                           _buildTrackingIcon(Icons.restaurant, step >= 2),
                           _buildDashedLine(),
@@ -136,8 +171,7 @@ class _TrackingPageState extends State<TrackingPage> {
                     ),
                     const Divider(),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -148,8 +182,7 @@ class _TrackingPageState extends State<TrackingPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text("Pesanan",
-                                  style: TextStyle(fontSize: 15)),
+                              const Text("Pesanan", style: TextStyle(fontSize: 15)),
                               Text("Rp $total",
                                   style: const TextStyle(
                                       fontSize: 15,
