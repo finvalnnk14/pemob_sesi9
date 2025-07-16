@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
 class KontakDriverPage extends StatelessWidget {
   final String customerName;
@@ -13,9 +14,8 @@ class KontakDriverPage extends StatelessWidget {
     required this.imageUrl,
   }) : super(key: key);
 
-  // Fungsi untuk membuka WhatsApp ke nomor tertentu
   void _openWhatsApp() async {
-    const phoneNumber = '6285838999169'; // Ganti 0 dengan 62 untuk kode negara Indonesia
+    const phoneNumber = '6285838999169';
     final url = Uri.parse('https://wa.me/$phoneNumber');
 
     if (await canLaunchUrl(url)) {
@@ -25,11 +25,37 @@ class KontakDriverPage extends StatelessWidget {
     }
   }
 
+  Future<void> _updateStatus(BuildContext context) async {
+    final url = Uri.parse('http://localhost:3000/api/driver');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: '{"id": "$customerId", "status": "on_delivery"}',
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Status diupdate ke on_delivery!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal update: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kontak Customer"),
+        title: const Text('Kontak Customer'),
         backgroundColor: Colors.orange,
       ),
       body: Center(
@@ -44,9 +70,7 @@ class KontakDriverPage extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Foto profil
               CircleAvatar(
                 radius: 30,
                 backgroundImage: imageUrl.isNotEmpty
@@ -54,8 +78,6 @@ class KontakDriverPage extends StatelessWidget {
                     : const AssetImage('assets/default_user.png') as ImageProvider,
               ),
               const SizedBox(width: 12),
-
-              // Nama dan ID Customer
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,13 +97,15 @@ class KontakDriverPage extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // Ikon Chat dan Call
               Row(
                 children: [
                   IconButton(
                     icon: const Icon(Icons.chat, color: Colors.orange),
                     onPressed: _openWhatsApp,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.check, color: Colors.green),
+                    onPressed: () => _updateStatus(context),
                   ),
                 ],
               ),
